@@ -1,0 +1,1 @@
+web: gunicorn kamlux_realestate.wsgi --log-file -
