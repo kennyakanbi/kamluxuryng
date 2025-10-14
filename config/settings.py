@@ -4,30 +4,36 @@ import environ # type: ignore
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(DEBUG=(bool, True))
-environ.Env.read_env(BASE_DIR / '.env')
+environ.Env.read_env(BASE_DIR / ".env")
 
-SECRET_KEY = env('SECRET_KEY', default='dev-secret-key')
-DEBUG = env('DEBUG', default=True)
-ALLOWED_HOSTS = ['*']
+# Security / secrets
+SECRET_KEY = env("SECRET_KEY", default="dev-secret-key")
+# Use env.bool so DEBUG becomes a proper boolean
+DEBUG = env.bool("DEBUG", default=True)
+
+# Allow hosts as a comma-separated env var; default to dev wildcard
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
 
 INSTALLED_APPS = [
     "django.contrib.humanize",
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django_bootstrap5',
-    'crispy_forms',
-    'crispy_bootstrap5',
-    'django_filters',
-    'listings',
-    'checkout',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django_bootstrap5",
+    "crispy_forms",
+    "crispy_bootstrap5",
+    "django_filters",
+    "listings",
+    "checkout",
 ]
 
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+# Crispy forms
+CRISPY_ALLOWED_TEMPLATE_PACKS = ["bootstrap5"]
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -94,5 +100,16 @@ PAYSTACK_PUBLIC_KEY = env('PAYSTACK_PUBLIC_KEY', default='')
 PAYSTACK_SECRET_KEY = env('PAYSTACK_SECRET_KEY', default='')
 CURRENCY = 'NGN'
 WHATSAPP_NUMBER = env('WHATSAPP_NUMBER', default='2347036067548')
+
+# ----- Heroku / security helpers -----
+# Trust the X-Forwarded-Proto header that Heroku sets
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# Read security flags from env (set to True in production)
+SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE", default=False)
+CSRF_COOKIE_SECURE = env.bool("CSRF_COOKIE_SECURE", default=False)
+SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=False)
+# -------------------------------------
+
 
 django_heroku.settings(locals())
